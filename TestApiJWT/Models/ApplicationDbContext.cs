@@ -8,5 +8,16 @@ namespace TestApiJWT.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<OrderedProducts> OrderedProducts { get; set; }
+        public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public virtual DbSet<ShoppingCartProducts> ShoppingCartProducts { get; set; }
+        public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public virtual DbSet<Paypal> Paypals { get; set; }
+        public virtual DbSet<Visa> Visas { get; set; }
+        public virtual DbSet<FavouriteProducts> FavouriteProducts { get; set; }
     }
 }
