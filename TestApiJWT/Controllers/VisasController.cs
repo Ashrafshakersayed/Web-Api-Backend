@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,26 @@ namespace TestApiJWT.Controllers
     public class VisasController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public VisasController(ApplicationDbContext context)
+
+        public VisasController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Visas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Visa>>> GetVisas()
+        public async Task<ActionResult<IEnumerable<VisaModel>>> GetVisas()
         {
-            return await _context.Visas.ToListAsync();
+            var visas = await _context.Visas.ToListAsync();
+            return _mapper.Map<VisaModel[]>(visas);
         }
 
         // GET: api/Visas/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Visa>> GetVisa(int id)
+        public async Task<ActionResult<VisaModel>> GetVisa(int id)
         {
             var visa = await _context.Visas.FindAsync(id);
 
@@ -38,21 +43,21 @@ namespace TestApiJWT.Controllers
                 return NotFound();
             }
 
-            return visa;
+            return _mapper.Map<VisaModel>( visa );
         }
 
         // PUT: api/Visas/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVisa(int id, Visa visa)
+        public async Task<IActionResult> PutVisa(int id, VisaModel visaModel)
         {
-            if (id != visa.Id)
+            if (id != visaModel.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(visa).State = EntityState.Modified;
-
+            var visa = await _context.Visas.FindAsync(id);
+            _mapper.Map(visaModel, visa);
             try
             {
                 await _context.SaveChangesAsync();
@@ -75,12 +80,13 @@ namespace TestApiJWT.Controllers
         // POST: api/Visas
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Visa>> PostVisa(Visa visa)
+        public async Task<ActionResult<VisaModel>> PostVisa(VisaModel visaModel)
         {
+            var visa = _mapper.Map<Visa>(visaModel);
             _context.Visas.Add(visa);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetVisa", new { id = visa.Id }, visa);
+            return CreatedAtAction("GetVisa", new { id = visa.Id }, visaModel);
         }
 
         // DELETE: api/Visas/5

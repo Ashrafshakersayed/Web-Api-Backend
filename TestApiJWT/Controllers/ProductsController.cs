@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestApiJWT.Models;
+using TestApiJWT.Services;
 
 namespace TestApiJWT.Controllers
 {
@@ -14,22 +16,43 @@ namespace TestApiJWT.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly IProductService _productService;
 
-        public ProductsController(ApplicationDbContext context)
+
+        public ProductsController(ApplicationDbContext context, IMapper mapper, IProductService productService)
         {
             _context = context;
+            _mapper = mapper;
+            _productService = productService;
         }
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductModel>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _context.Products.ToListAsync();
+            return _mapper.Map<ProductModel[]>(products);
+        }
+
+        [HttpGet]
+        [Route("api/Products/page")]
+        public async Task<ActionResult<IEnumerable<productsPagination>>> Products(int pageNum, int limit = 10)
+        {
+
+            return Ok( _productService.GetProducts(pageNum , limit));
+        }
+
+        [HttpGet]
+        [Route("api/Products/Search/{keyWord}")]
+        public async Task<ActionResult<IEnumerable<productsPagination>>> Search(string keyWord)
+        {
+            return Ok(_productService.Search(keyWord));
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductModel>> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
 
@@ -38,21 +61,21 @@ namespace TestApiJWT.Controllers
                 return NotFound();
             }
 
-            return product;
+            return _mapper.Map<ProductModel>(product);
         }
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, ProductModel productModel)
         {
-            if (id != product.Id)
+            if (id != productModel.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
-
+            var product = await _context.Products.FindAsync(id);
+            _mapper.Map(productModel, product);
             try
             {
                 await _context.SaveChangesAsync();
@@ -75,12 +98,13 @@ namespace TestApiJWT.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<ProductModel>> PostProduct(ProductModel productModel)
         {
+            var product = _mapper.Map<Product>(productModel);
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            return CreatedAtAction("GetProduct", new { id = product.Id }, productModel);
         }
 
         // DELETE: api/Products/5

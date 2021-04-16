@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,25 @@ namespace TestApiJWT.Controllers
     public class ShoppingCartsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ShoppingCartsController(ApplicationDbContext context)
+        public ShoppingCartsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/ShoppingCarts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ShoppingCart>>> GetShoppingCarts()
+        public async Task<ActionResult<IEnumerable<ShoppingCartModel>>> GetShoppingCarts()
         {
-            return await _context.ShoppingCarts.ToListAsync();
+            var shopingCarts = await _context.ShoppingCarts.ToListAsync();
+            return _mapper.Map<ShoppingCartModel[]>(shopingCarts);
         }
 
         // GET: api/ShoppingCarts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ShoppingCart>> GetShoppingCart(string id)
+        public async Task<ActionResult<ShoppingCartModel>> GetShoppingCart(string id)
         {
             var shoppingCart = await _context.ShoppingCarts.FindAsync(id);
 
@@ -38,20 +42,21 @@ namespace TestApiJWT.Controllers
                 return NotFound();
             }
 
-            return shoppingCart;
+            return _mapper.Map<ShoppingCartModel>(shoppingCart);
         }
 
         // PUT: api/ShoppingCarts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutShoppingCart(string id, ShoppingCart shoppingCart)
+        public async Task<IActionResult> PutShoppingCart(string id, ShoppingCartModel shoppingCartModel)
         {
-            if (id != shoppingCart.Id)
+            if (id != shoppingCartModel.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(shoppingCart).State = EntityState.Modified;
+            var ShoppingCart = await _context.ShoppingCarts.FindAsync(id);
+            _mapper.Map(shoppingCartModel, ShoppingCart);
 
             try
             {
@@ -75,8 +80,9 @@ namespace TestApiJWT.Controllers
         // POST: api/ShoppingCarts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ShoppingCart>> PostShoppingCart(ShoppingCart shoppingCart)
+        public async Task<ActionResult<ShoppingCartModel>> PostShoppingCart(ShoppingCartModel shoppingCartModel)
         {
+            var shoppingCart = _mapper.Map<ShoppingCart>(shoppingCartModel);
             _context.ShoppingCarts.Add(shoppingCart);
             try
             {
@@ -94,7 +100,7 @@ namespace TestApiJWT.Controllers
                 }
             }
 
-            return CreatedAtAction("GetShoppingCart", new { id = shoppingCart.Id }, shoppingCart);
+            return CreatedAtAction("GetShoppingCart", new { id = shoppingCart.Id }, shoppingCartModel);
         }
 
         // DELETE: api/ShoppingCarts/5
