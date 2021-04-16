@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,25 @@ namespace TestApiJWT.Controllers
     public class PaymentMethodsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public PaymentMethodsController(ApplicationDbContext context)
+        public PaymentMethodsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/PaymentMethods
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethods()
+        public async Task<ActionResult<IEnumerable<PaymentMethodModel>>> GetPaymentMethods()
         {
-            return await _context.PaymentMethods.ToListAsync();
+            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+            return _mapper.Map<PaymentMethodModel[]>(paymentMethods);
         }
 
         // GET: api/PaymentMethods/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<PaymentMethod>> GetPaymentMethod(int id)
+        public async Task<ActionResult<PaymentMethodModel>> GetPaymentMethod(int id)
         {
             var paymentMethod = await _context.PaymentMethods.FindAsync(id);
 
@@ -38,20 +42,23 @@ namespace TestApiJWT.Controllers
                 return NotFound();
             }
 
-            return paymentMethod;
+            return _mapper.Map<PaymentMethodModel>(paymentMethod);
         }
 
         // PUT: api/PaymentMethods/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaymentMethod(int id, PaymentMethod paymentMethod)
+        public async Task<IActionResult> PutPaymentMethod(int id, PaymentMethodModel paymentMethodModel)
         {
-            if (id != paymentMethod.Id)
+            if (id != paymentMethodModel.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(paymentMethod).State = EntityState.Modified;
+            var paymentMethod = await _context.PaymentMethods.FindAsync(id);
+            _mapper.Map(paymentMethodModel, paymentMethod);  //Note the way that we use to map here.
+
+            //_context.Entry(paymentMethod).State = EntityState.Modified;
 
             try
             {
@@ -75,12 +82,13 @@ namespace TestApiJWT.Controllers
         // POST: api/PaymentMethods
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<PaymentMethod>> PostPaymentMethod(PaymentMethod paymentMethod)
+        public async Task<ActionResult<PaymentMethod>> PostPaymentMethod(PaymentMethodModel paymentMethodModel)
         {
+            var paymentMethod = _mapper.Map<PaymentMethod>(paymentMethodModel);
             _context.PaymentMethods.Add(paymentMethod);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPaymentMethod", new { id = paymentMethod.Id }, paymentMethod);
+            return CreatedAtAction("GetPaymentMethod", new { id = paymentMethod.Id }, paymentMethodModel);
         }
 
         // DELETE: api/PaymentMethods/5

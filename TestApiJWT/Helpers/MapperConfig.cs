@@ -12,6 +12,10 @@ namespace TestApiJWT.Helpers
         public MapperConfig()
         {
             this.CreateMap<Category, CategoryModel>().ReverseMap();
+            this.CreateMap<FavouriteProducts, FavouriteProductsModel>().ReverseMap();
+            this.CreateMap<OrderedProducts, OrderedProductsModel>().ReverseMap();
+            this.CreateMap<Order, OrderModel>().ReverseMap();
+            this.CreateMap<PaymentMethod, PaymentMethodModel>().ReverseMap();
 
         }
     }
