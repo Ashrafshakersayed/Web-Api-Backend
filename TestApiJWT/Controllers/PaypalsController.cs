@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,27 @@ namespace TestApiJWT.Controllers
     public class PaypalsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public PaypalsController(ApplicationDbContext context)
+
+        public PaypalsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
+
         }
 
         // GET: api/Paypals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Paypal>>> GetPaypals()
+        public async Task<ActionResult<IEnumerable<PaypalModel>>> GetPaypals()
         {
-            return await _context.Paypals.ToListAsync();
+            var paypals = await _context.Paypals.ToListAsync();
+            return _mapper.Map<PaypalModel[]>(paypals);
         }
 
         // GET: api/Paypals/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Paypal>> GetPaypal(int id)
+        public async Task<ActionResult<PaypalModel>> GetPaypal(int id)
         {
             var paypal = await _context.Paypals.FindAsync(id);
 
@@ -38,20 +44,21 @@ namespace TestApiJWT.Controllers
                 return NotFound();
             }
 
-            return paypal;
+            return _mapper.Map<PaypalModel>(paypal);
         }
 
         // PUT: api/Paypals/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaypal(int id, Paypal paypal)
+        public async Task<IActionResult> PutPaypal(int id, PaypalModel paypalModel)
         {
-            if (id != paypal.Id)
+            if (id != paypalModel.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(paypal).State = EntityState.Modified;
+            var paypal = await _context.Paypals.FindAsync(id);
+            _mapper.Map(paypalModel, paypal);
 
             try
             {
@@ -75,12 +82,13 @@ namespace TestApiJWT.Controllers
         // POST: api/Paypals
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Paypal>> PostPaypal(Paypal paypal)
+        public async Task<ActionResult<PaypalModel>> PostPaypal(PaypalModel paypalModel)
         {
+            var paypal = _mapper.Map<Paypal>(paypalModel);
             _context.Paypals.Add(paypal);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPaypal", new { id = paypal.Id }, paypal);
+            return CreatedAtAction("GetPaypal", new { id = paypal.Id }, paypalModel);
         }
 
         // DELETE: api/Paypals/5
