@@ -68,6 +68,8 @@ namespace TestApiJWT
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestApiJWT", Version = "v1" });
             });
+
+            services.AddCors(); //you have to add this, and useCors
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,6 +81,10 @@ namespace TestApiJWT
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestApiJWT v1"));
             }
+            //have to be before Routing, 
+            app.UseCors(options => options.WithOrigins("http://localhost:4200")//should like this, without any / in the last.
+            .AllowAnyMethod() //to allow methods get post put .....
+            .AllowAnyHeader());
 
             app.UseHttpsRedirection();
 
