@@ -72,6 +72,8 @@ namespace TestApiJWT
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestApiJWT", Version = "v1" });
             });
+
+            services.AddCors(); //you have to add this, and useCors
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
