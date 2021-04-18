@@ -56,5 +56,39 @@ namespace TestApiJWT.Models
         public int Quantity { get; set; }
         public Nullable<int> CategoryId { get; set; }
     }
+    public class FavouriteProductsModel
+    {
+        public int Id { get; set; }
+
+        public string userId { get; set; }
+
+        public int productId { get; set; }
+    }
+
+    public class OrderedProductsModel
+    {
+        public int Id { get; set; }
+        public int Quantity { get; set; }
+        
+        public int productId { get; set; }
+        
+        public int orderId { get; set; }
+    }
+
+    public class OrderModel
+    {
+        public int Id { get; set; }
+        public DateTime DateTime { get; set; }
+        public double totalPrice { get; set; }
+        public string userId { get; set; }
+
+    }
+
+    public class PaymentMethodModel
+    {
+        public int Id { get; set; }
+        public string Method { get; set; }
+    }
+
 
 }

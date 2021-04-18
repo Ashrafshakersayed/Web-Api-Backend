@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,25 @@ namespace TestApiJWT.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public OrdersController(ApplicationDbContext context)
+        public OrdersController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var orders = await _context.Orders.ToListAsync();
+            return _mapper.Map<OrderModel[]>(orders);
         }
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        public async Task<ActionResult<OrderModel>> GetOrder(int id)
         {
             var order = await _context.Orders.FindAsync(id);
 
@@ -38,20 +42,21 @@ namespace TestApiJWT.Controllers
                 return NotFound();
             }
 
-            return order;
+            return _mapper.Map<OrderModel>(order);
         }
 
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+        public async Task<IActionResult> PutOrder(int id, OrderModel orderModel)
         {
-            if (id != order.Id)
+            if (id != orderModel.Id)
             {
                 return BadRequest();
             }
-
-            _context.Entry(order).State = EntityState.Modified;
+            var order = await _context.Orders.FindAsync(id);
+            _mapper.Map(orderModel, order);  //Note the way that we use to map here.
+            //_context.Entry(order).State = EntityState.Modified;
 
             try
             {
@@ -75,12 +80,13 @@ namespace TestApiJWT.Controllers
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder(OrderModel orderModel)
         {
+            var order = _mapper.Map<Order>(orderModel);
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+            return CreatedAtAction("GetOrder", new { id = order.Id }, orderModel);
         }
 
         // DELETE: api/Orders/5

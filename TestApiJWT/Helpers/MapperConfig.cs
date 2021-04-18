@@ -18,6 +18,10 @@ namespace TestApiJWT.Helpers
             this.CreateMap<ShoppingCart, ShoppingCartModel>().ReverseMap();
             this.CreateMap<Product, ProductModel>().ReverseMap();
 
+            this.CreateMap<FavouriteProducts, FavouriteProductsModel>().ReverseMap();
+            this.CreateMap<OrderedProducts, OrderedProductsModel>().ReverseMap();
+            this.CreateMap<Order, OrderModel>().ReverseMap();
+            this.CreateMap<PaymentMethod, PaymentMethodModel>().ReverseMap();
 
         }
     }
