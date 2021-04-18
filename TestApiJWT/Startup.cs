@@ -79,6 +79,9 @@ namespace TestApiJWT
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestApiJWT v1"));
             }
+            app.UseCors(builder => builder.WithOrigins("http://localhost:4200")
+                              .AllowAnyMethod()
+                              .AllowAnyHeader());
 
             app.UseHttpsRedirection();
 
