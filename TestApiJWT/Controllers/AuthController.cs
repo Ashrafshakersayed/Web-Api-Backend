@@ -17,12 +17,12 @@ namespace TestApiJWT.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model, bool isAdmin = false)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.RegisterAsync(model);
+            var result = await _authService.RegisterAsync(model, isAdmin);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
