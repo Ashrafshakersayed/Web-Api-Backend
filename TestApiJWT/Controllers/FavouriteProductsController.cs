@@ -1,12 +1,11 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TestApiJWT.Models;
+using TestApiJWT.Services;
 
 namespace TestApiJWT.Controllers
 {
@@ -16,11 +15,13 @@ namespace TestApiJWT.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IFavouriteProductService _favouriteProductService;
 
-        public FavouriteProductsController(ApplicationDbContext context, IMapper mapper)
+        public FavouriteProductsController(ApplicationDbContext context, IMapper mapper, IFavouriteProductService favouriteProductService)
         {
             _context = context;
-            this._mapper = mapper;
+            _mapper = mapper;
+            _favouriteProductService = favouriteProductService;
         }
 
         // GET: api/FavouriteProducts
@@ -30,6 +31,15 @@ namespace TestApiJWT.Controllers
             var favouriteProducts = await _context.FavouriteProducts.ToListAsync();
             return _mapper.Map<FavouriteProductsModel[]>(favouriteProducts);
         }
+
+        // GET: api/FavouriteProducts
+        [HttpGet]
+        [Route("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<FavouriteProductsModel>>> GetFavouriteProductsByUserId(string userId)
+        {
+            return await _favouriteProductService.GetFavouriteProductByUserId(userId);
+        }
+
 
         // GET: api/FavouriteProducts/5
         [HttpGet("{id}")]
@@ -81,13 +91,19 @@ namespace TestApiJWT.Controllers
         // POST: api/FavouriteProducts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<FavouriteProducts>> PostFavouriteProducts(FavouriteProductsModel favouriteProductsModel)
+        public async Task<ActionResult<FavouriteProductsModel>>
+            PostFavouriteProducts(FavouriteProductsModel favouriteProductsModel)
         {
-            var favouriteProducts = _mapper.Map<FavouriteProducts>(favouriteProductsModel);
-            _context.FavouriteProducts.Add(favouriteProducts);
-            await _context.SaveChangesAsync();
+            var favouriteProduct = _mapper.Map<FavouriteProducts>(favouriteProductsModel);
 
-            return CreatedAtAction("GetFavouriteProducts", new { id = favouriteProducts.Id }, favouriteProductsModel);
+
+            if (!FavouriteProductsUniqe(favouriteProduct.productId, favouriteProduct.userId))
+            {
+                _context.FavouriteProducts.Add(favouriteProduct);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction("GetFavouriteProducts", new { id = favouriteProduct.Id }, favouriteProductsModel);
         }
 
         // DELETE: api/FavouriteProducts/5
@@ -109,6 +125,12 @@ namespace TestApiJWT.Controllers
         private bool FavouriteProductsExists(int id)
         {
             return _context.FavouriteProducts.Any(e => e.Id == id);
+        }
+
+        private bool FavouriteProductsUniqe(int prdId, string userId)
+        {
+            return _context.FavouriteProducts
+                .Any(e => (e.productId == prdId) && (e.userId == userId));
         }
     }
 }

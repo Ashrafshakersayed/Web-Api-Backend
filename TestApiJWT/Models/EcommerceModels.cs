@@ -63,6 +63,9 @@ namespace TestApiJWT.Models
         public string userId { get; set; }
 
         public int productId { get; set; }
+
+        public ProductModel product { get; set; }
+
     }
 
     public class OrderedProductsModel
