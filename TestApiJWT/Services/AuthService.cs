@@ -26,7 +26,9 @@ namespace TestApiJWT.Services
             _jwt = jwt.Value;
         }
 
-        public async Task<AuthModel> RegisterAsync(RegisterModel model)
+
+
+        public async Task<AuthModel> RegisterAsync(RegisterModel model, bool isAdmin)
         {
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
                 return new AuthModel { Message = "Email is already registered!" };
@@ -43,7 +45,7 @@ namespace TestApiJWT.Services
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
-
+            var role = "";
             if (!result.Succeeded)
             {
                 var errors = string.Empty;
@@ -53,8 +55,17 @@ namespace TestApiJWT.Services
 
                 return new AuthModel { Message = errors };
             }
-
-            await _userManager.AddToRoleAsync(user, "User");
+            if (isAdmin)
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+                role = "Admin";
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(user, "User");
+                role = "User";
+            }
+            
 
             var jwtSecurityToken = await CreateJwtToken(user);
 
@@ -63,9 +74,10 @@ namespace TestApiJWT.Services
                 Email = user.Email,
                 ExpiresOn = jwtSecurityToken.ValidTo,
                 IsAuthenticated = true,
-                Roles = new List<string> { "User" },
+                Roles = new List<string> { role },
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                Username = user.UserName
+                Username = user.UserName,
+                UserId = user.Id
             };
         }
 
@@ -88,6 +100,7 @@ namespace TestApiJWT.Services
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             authModel.Email = user.Email;
             authModel.Username = user.UserName;
+            authModel.UserId = user.Id;
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
             authModel.Roles = rolesList.ToList();
 
@@ -96,7 +109,7 @@ namespace TestApiJWT.Services
 
         public async Task<string> AddRoleAsync(AddRoleModel model)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
+            var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user is null || !await _roleManager.RoleExistsAsync(model.Role))
                 return "Invalid user ID or Role";

@@ -17,4 +17,5 @@ namespace TestApiJWT.Models
 
         public ICollection<ProductModel> products { get; init; }
     }
+
 }

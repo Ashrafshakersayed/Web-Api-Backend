@@ -36,14 +36,18 @@ namespace TestApiJWT.Models
         public int Id { get; set; }
         public int Quantity { get; set; }
         public int productId { get; set; }
-        public string shoppingCartId { get; set; }
+        public string UserId { get; set; }
+        public string ProductImage { get; set; }
+        public double ProductPrice { get; set; }
+        public string ProductName { get; set; }
+
     }
 
-    public class ShoppingCartModel
-    {
-        public string Id { get; set; }
-        public double totalPrice { get; set; }
-    }
+    //public class ShoppingCartModel
+    //{
+    //    public string Id { get; set; }
+    //    public double totalPrice { get; set; }
+    //}
 
     public class ProductModel
     {
@@ -63,6 +67,9 @@ namespace TestApiJWT.Models
         public string userId { get; set; }
 
         public int productId { get; set; }
+
+        public ProductModel product { get; set; }
+
     }
 
     public class OrderedProductsModel

@@ -62,14 +62,14 @@ namespace TestApiJWT.Models
         public virtual Order Order { get; set; }
     }
 
-    public class ShoppingCart
-    {
-        [Key, ForeignKey("appUser")]
-        public string Id { get; set; }
-        public double totalPrice { get; set; }
-        public virtual ApplicationUser appUser { get; set; }
-        public virtual ICollection<ShoppingCartProducts> ShoppingCartProducts { get; set; }
-    }
+    //public class ShoppingCart
+    //{
+    //    [Key, ForeignKey("appUser")]
+    //    public string Id { get; set; }
+    //    public double totalPrice { get; set; }
+    //    public virtual ApplicationUser appUser { get; set; }
+    //    public virtual ICollection<ShoppingCartProducts> ShoppingCartProducts { get; set; }
+    //}
 
     public class ShoppingCartProducts
     {
@@ -77,10 +77,10 @@ namespace TestApiJWT.Models
         public int Quantity { get; set; }
         [ForeignKey("Product")]
         public int productId { get; set; }
-        [ForeignKey("ShoppingCart")]
-        public string shoppingCartId { get; set; }
+        [ForeignKey("User")]
+        public string UserId { get; set; }
         public virtual Product Product { get; set; }
-        public virtual ShoppingCart ShoppingCart { get; set; }
+        public virtual ApplicationUser User { get; set; }
     }
 
     public class PaymentMethod

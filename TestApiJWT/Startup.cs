@@ -41,6 +41,8 @@ namespace TestApiJWT
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IFavouriteProductService, FavouriteProductService>();
+
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))

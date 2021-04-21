@@ -28,22 +28,22 @@ namespace TestApiJWT.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ShoppingCartProductsModel>>> GetShoppingCartProducts()
         {
-            var ShoppingCartProducts = await _context.ShoppingCartProducts.ToListAsync();
+            var ShoppingCartProducts = await _context.ShoppingCartProducts.Include(sh=>sh.Product).ToListAsync();
             return _mapper.Map<ShoppingCartProductsModel[]>(ShoppingCartProducts);
         }
 
         // GET: api/ShoppingCartProducts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ShoppingCartProductsModel>> GetShoppingCartProducts(int id)
+        public ActionResult<ShoppingCartProductsModel[]> GetShoppingCartProducts(string id)
         {
-            var shoppingCartProducts = await _context.ShoppingCartProducts.FindAsync(id);
+            var shoppingCartProducts = _context.ShoppingCartProducts.Where(s=>s.UserId ==id);
 
             if (shoppingCartProducts == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<ShoppingCartProductsModel>(shoppingCartProducts);
+            return _mapper.Map<ShoppingCartProductsModel[]>(shoppingCartProducts);
         }
 
         // PUT: api/ShoppingCartProducts/5
@@ -84,7 +84,15 @@ namespace TestApiJWT.Controllers
         public async Task<ActionResult<ShoppingCartProductsModel>> PostShoppingCartProducts(ShoppingCartProductsModel shoppingCartProductsModel)
         {
             var shoppingCartProducts = _mapper.Map<ShoppingCartProducts>(shoppingCartProductsModel);
-            _context.ShoppingCartProducts.Add(shoppingCartProducts);
+            var product = await _context.ShoppingCartProducts.FirstOrDefaultAsync(sh => sh.UserId == shoppingCartProducts.UserId && sh.productId == shoppingCartProducts.productId);
+            if (product is null)
+            {
+                _context.ShoppingCartProducts.Add(shoppingCartProducts);
+            }
+            else
+            {
+                product.Quantity++;
+            }
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetShoppingCartProducts", new { id = shoppingCartProducts.Id }, shoppingCartProductsModel);

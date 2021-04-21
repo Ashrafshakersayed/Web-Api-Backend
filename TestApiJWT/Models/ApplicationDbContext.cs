@@ -18,7 +18,7 @@ namespace TestApiJWT.Models
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<OrderedProducts> OrderedProducts { get; set; }
-        public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        //public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public virtual DbSet<ShoppingCartProducts> ShoppingCartProducts { get; set; }
         public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
         public virtual DbSet<Paypal> Paypals { get; set; }
