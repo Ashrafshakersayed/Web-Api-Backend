@@ -131,7 +131,7 @@ namespace TestApiJWT.Controllers
         }
 
         [HttpPost, DisableRequestSizeLimit, Route("uploadImage")]
-        public async Task<IActionResult> UploadImageProduct()
+        public IActionResult UploadImageProduct()
         {
             try
             {
