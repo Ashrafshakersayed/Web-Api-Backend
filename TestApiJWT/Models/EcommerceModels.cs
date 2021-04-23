@@ -24,10 +24,9 @@ namespace TestApiJWT.Models
     public class VisaModel
     {
         public int Id { get; set; }
-        [Required, MinLength(14)]
+        [Required]
         public long Number { get; set; }
         public string Expire { get; set; }
-        [Required, MinLength(3)]
         public int SequreCode { get; set; }
     }
 
@@ -89,6 +88,8 @@ namespace TestApiJWT.Models
         public DateTime DateTime { get; set; }
         public double totalPrice { get; set; }
         public string userId { get; set; }
+        public virtual PaymentMethodModel PaymentMethod { get; set; }
+
 
     }
 
