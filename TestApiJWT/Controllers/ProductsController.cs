@@ -161,5 +161,12 @@ namespace TestApiJWT.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet, Route("Category/{id}")]
+        public async Task<ActionResult<IEnumerable<ProductModel>>> GetProductsByCategory(int id)
+        {
+            var products = await _context.Products.Where(p => p.CategoryId == id).ToListAsync();
+            return _mapper.Map<ProductModel[]>(products);
+        }
     }
 }
