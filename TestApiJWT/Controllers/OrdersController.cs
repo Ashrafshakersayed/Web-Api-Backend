@@ -80,13 +80,14 @@ namespace TestApiJWT.Controllers
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(OrderModel orderModel)
+        public async Task<ActionResult<int>> PostOrder(OrderModel orderModel)
         {
+            orderModel.DateTime = DateTime.Now;
             var order = _mapper.Map<Order>(orderModel);
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, orderModel);
+            return order.Id ;
         }
 
         // DELETE: api/Orders/5

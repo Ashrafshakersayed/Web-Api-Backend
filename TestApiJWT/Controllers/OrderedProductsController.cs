@@ -82,11 +82,15 @@ namespace TestApiJWT.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderedProducts>> PostOrderedProducts(OrderedProductsModel orderedProductsModel)
         {
-            var orderedProducts= _mapper.Map<OrderedProducts>(orderedProductsModel);
-            _context.OrderedProducts.Add(orderedProducts);
+            var orderedProduct= _mapper.Map<OrderedProducts>(orderedProductsModel);
+            _context.OrderedProducts.Add(orderedProduct);
+
+            var prd = _context.Products.FirstOrDefault(p=>p.Id==orderedProduct.productId);
+            prd.Quantity -= orderedProduct.Quantity;
+
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrderedProducts", new { id = orderedProducts.Id }, orderedProductsModel);
+            return CreatedAtAction("GetOrderedProducts", new { id = orderedProduct.Id }, orderedProductsModel);
         }
 
         // DELETE: api/OrderedProducts/5

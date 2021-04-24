@@ -15,9 +15,7 @@ namespace TestApiJWT.Helpers
             this.CreateMap<Paypal, PaypalModel>().ReverseMap();
             this.CreateMap<Visa, VisaModel>().ReverseMap();
             this.CreateMap<ShoppingCartProducts, ShoppingCartProductsModel>()
-                .ForMember(sh => sh.ProductImage, src => src.MapFrom(sh => sh.Product.Image))
-                .ForMember(sh => sh.ProductName, src => src.MapFrom(sh => sh.Product.Name))
-                .ForMember(sh => sh.ProductPrice, src => src.MapFrom(sh => sh.Product.Price))
+                .ForMember(sh => sh.ProductMaxQuantity, src => src.MapFrom(sh => sh.Product.Quantity))
                 .ReverseMap()
                 .ForMember(sh => sh.Product, opt => opt.Ignore());
             //mapped when you get, not mapped when you post

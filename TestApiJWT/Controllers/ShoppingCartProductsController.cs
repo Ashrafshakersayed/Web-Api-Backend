@@ -36,7 +36,7 @@ namespace TestApiJWT.Controllers
         [HttpGet("{id}")]
         public ActionResult<ShoppingCartProductsModel[]> GetShoppingCartProducts(string id)
         {
-            var shoppingCartProducts = _context.ShoppingCartProducts.Where(s=>s.UserId ==id);
+            var shoppingCartProducts = _context.ShoppingCartProducts.Where(s=>s.UserId ==id).Include(sh=>sh.Product);
 
             if (shoppingCartProducts == null)
             {
@@ -44,6 +44,14 @@ namespace TestApiJWT.Controllers
             }
 
             return _mapper.Map<ShoppingCartProductsModel[]>(shoppingCartProducts);
+        }
+
+        [HttpGet("api/ShoppingCartProducts/items/{id}")]
+        public IActionResult GetItemsCount(string id)
+        {
+            var shoppingCartProducts = _context.ShoppingCartProducts.Where(s => s.UserId == id).Count();
+
+            return Ok(shoppingCartProducts);
         }
 
         // PUT: api/ShoppingCartProducts/5
@@ -99,10 +107,10 @@ namespace TestApiJWT.Controllers
         }
 
         // DELETE: api/ShoppingCartProducts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteShoppingCartProducts(int id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteShoppingCartProducts(int prodcutId, string userId)
         {
-            var shoppingCartProducts = await _context.ShoppingCartProducts.FindAsync(id);
+            var shoppingCartProducts = await _context.ShoppingCartProducts.FirstOrDefaultAsync(sh=>sh.productId == prodcutId && sh.UserId == userId);
             if (shoppingCartProducts == null)
             {
                 return NotFound();
