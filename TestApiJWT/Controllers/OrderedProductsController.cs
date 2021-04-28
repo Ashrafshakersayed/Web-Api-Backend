@@ -109,6 +109,17 @@ namespace TestApiJWT.Controllers
             return NoContent();
         }
 
+        [HttpGet, Route("Order/{id}")]
+        public ActionResult<IEnumerable<OrderedProductsModel>> GetOrderedProductsByOrderId(int id)
+        {
+            var orderedProducts = _context.OrderedProducts.Where(op => op.orderId == id);
+            if (orderedProducts == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<OrderedProductsModel[]>(orderedProducts);
+        }
+
         private bool OrderedProductsExists(int id)
         {
             return _context.OrderedProducts.Any(e => e.Id == id);

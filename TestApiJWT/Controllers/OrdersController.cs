@@ -27,7 +27,7 @@ namespace TestApiJWT.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderModel>>> GetOrders()
         {
-            var orders = await _context.Orders.ToListAsync();
+            var orders = await _context.Orders.OrderByDescending(o => o.DateTime).ToListAsync();
             return _mapper.Map<OrderModel[]>(orders);
         }
 
