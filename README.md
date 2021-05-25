@@ -1,3 +1,3 @@
 # Web-Api-Backend
 
-web API backend for eCommerce web site
+web API backend for eCommerce website
